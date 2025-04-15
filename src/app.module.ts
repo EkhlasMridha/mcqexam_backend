@@ -1,10 +1,11 @@
 import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
-import {MongooseModule} from "@nestjs/mongoose";
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { MongooseModule } from "@nestjs/mongoose";
+import dbConfig from "src/configs/db.config";
+import { AppService } from './app.service';
+import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
-import dbConfig from "src/configs/db.config"
+import { UtilityModule } from './utility/utility.module';
 
 
 @Module({
@@ -23,8 +24,8 @@ import dbConfig from "src/configs/db.config"
         maxPoolSize:50
       }
     }
-  }), UserModule],
-  controllers: [AppController],
+  }), UserModule, AuthModule, UtilityModule],
+  controllers: [],
   providers: [AppService],
 })
 export class AppModule {}
