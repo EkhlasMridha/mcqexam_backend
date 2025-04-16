@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from 'src/user/dtos/createUserDto';
+import { UserDto } from 'src/user/dtos/userDto';
 import { Model } from 'mongoose';
 import { User } from 'src/user/schemas/user';
 import { InjectModel } from '@nestjs/mongoose';
@@ -14,7 +14,7 @@ export class UserService {
     private hashingProvider: HashingProvider,
   ) {}
 
-  async createAdmin(userDto: CreateUserDto) {
+  async createAdmin(userDto: UserDto) {
     const hashedPassword = await this.hashingProvider.hashPassword(
       userDto.password,
     );
@@ -25,10 +25,6 @@ export class UserService {
       permissionLevel: UserPermission.ADMIN,
     });
 
-    const result = await user.save();
-
-    return plainToInstance(CreateUserDto, result, {
-      excludeExtraneousValues: true,
-    });
+    return await user.save();
   }
 }
