@@ -3,6 +3,7 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { MongooseModule } from '@nestjs/mongoose';
 import dbConfig from 'src/configs/db.config';
+import jwtConfig from 'src/configs/jwt.config';
 import { AuthModule } from './auth/auth.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
@@ -14,7 +15,7 @@ import { UtilityModule } from './utility/utility.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath: ['.env.local', '.env'],
-      load: [dbConfig],
+      load: [dbConfig, jwtConfig],
     }),
     MongooseModule.forRootAsync({
       imports: [ConfigModule],

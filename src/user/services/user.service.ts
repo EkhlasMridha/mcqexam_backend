@@ -14,7 +14,7 @@ export class UserService {
     private hashingProvider: HashingProvider,
   ) {}
 
-  async createAdmin(userDto: UserDto) {
+  async createAdmin(userDto: UserDto): Promise<User> {
     const hashedPassword = await this.hashingProvider.hashPassword(
       userDto.password,
     );
@@ -26,5 +26,9 @@ export class UserService {
     });
 
     return await user.save();
+  }
+
+  async findUserByEmail(email: string) {
+    return await this.userModel.findOne<User>({ email: email });
   }
 }
