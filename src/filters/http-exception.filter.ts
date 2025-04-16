@@ -5,7 +5,8 @@ import {
   HttpException,
   HttpStatus,
 } from '@nestjs/common';
-import { Response, Request } from 'express';
+import { Response } from 'express';
+import { MongooseError } from 'mongoose';
 import { ResponseModel } from 'src/interceptors/ResponseModel';
 
 @Catch()
@@ -13,12 +14,21 @@ export class HttpExceptionFilter<T> implements ExceptionFilter {
   catch(exception: T, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const MONGO_SERVER_ERROR = 'MongoServerError';
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
     let message = 'Internal server error';
     let details = null;
 
-    if (exception instanceof HttpException) {
+    const errorInstanceName = (exception as MongooseError).name;
+
+    if (errorInstanceName === MONGO_SERVER_ERROR) {
+      const erroObject = exception as any;
+      message = erroObject.message;
+      status = HttpStatus.BAD_REQUEST;
+
+      details = erroObject.errorResponse;
+    } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const res = exception.getResponse();
 
