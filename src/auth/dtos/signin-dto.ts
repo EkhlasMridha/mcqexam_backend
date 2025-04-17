@@ -3,10 +3,10 @@ import { IsNotEmpty } from 'class-validator';
 
 export class SigninDto {
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ default: 'example@example.com' })
   email: string;
 
   @IsNotEmpty()
-  @ApiProperty()
+  @ApiProperty({ default: 'abcd1234#' })
   password: string;
 }
