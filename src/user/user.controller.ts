@@ -7,13 +7,4 @@ import { plainToInstance } from 'class-transformer';
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
-
-  @Post()
-  @ApiBody({ type: UserDto })
-  async createAdminUser(@Body() createAdminDto: UserDto) {
-    const result = await this.userService.createAdmin(createAdminDto);
-    return plainToInstance(UserDto, result, {
-      excludeExtraneousValues: true,
-    });
-  }
 }

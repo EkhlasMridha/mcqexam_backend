@@ -8,7 +8,7 @@ import { AuthModule } from './auth/auth.module';
 import { HttpExceptionFilter } from './filters/http-exception.filter';
 import { ResponseInterceptor } from './interceptors/response.interceptor';
 import { UserModule } from './user/user.module';
-import { UtilityModule } from './utility/utility.module';
+import { JwtStrategyService } from './auth/services/jwt-strategy.service';
 
 @Module({
   imports: [
@@ -31,7 +31,6 @@ import { UtilityModule } from './utility/utility.module';
     }),
     UserModule,
     AuthModule,
-    UtilityModule,
   ],
   controllers: [],
   providers: [
@@ -43,6 +42,7 @@ import { UtilityModule } from './utility/utility.module';
       provide: APP_FILTER,
       useClass: HttpExceptionFilter,
     },
+    JwtStrategyService,
   ],
 })
 export class AppModule {}
