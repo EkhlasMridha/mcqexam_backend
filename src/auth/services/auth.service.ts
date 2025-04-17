@@ -5,7 +5,7 @@ import { User } from 'src/user/schemas/user';
 import { SigninDto } from '../dtos/signin-dto';
 import { HashingProvider } from 'src/auth/services/hashing.provider';
 import { UserDto } from 'src/user/dtos/userDto';
-import { UserPermission } from 'src/constants/permissions.constant';
+import { UserPermission } from 'src/common/constants/permissions.constant';
 import { JwtService } from '@nestjs/jwt';
 
 @Injectable()

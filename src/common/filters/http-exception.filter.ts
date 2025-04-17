@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { Response } from 'express';
 import { MongooseError } from 'mongoose';
-import { ResponseModel } from 'src/interceptors/ResponseModel';
+import { ResponseModel } from 'src/common/interceptors/ResponseModel';
 
 @Catch()
 export class HttpExceptionFilter<T> implements ExceptionFilter {

@@ -5,8 +5,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import dbConfig from 'src/configs/db.config';
 import jwtConfig from 'src/configs/jwt.config';
 import { AuthModule } from './auth/auth.module';
-import { HttpExceptionFilter } from './filters/http-exception.filter';
-import { ResponseInterceptor } from './interceptors/response.interceptor';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { UserModule } from './user/user.module';
 import { JwtStrategyService } from './auth/services/jwt-strategy.service';
 
