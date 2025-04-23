@@ -46,7 +46,6 @@ export class AuthService {
       iv: tokenId,
     };
 
-    this.cashService.setData(tokenId, tokenId);
     const accessToken = await this.tokenService.generateAccessToken(payload);
     const refreshToken = await this.tokenService.generateRefreshToken(payload);
 
