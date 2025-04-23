@@ -13,6 +13,7 @@ import { SharedModule } from './common/shared.module';
 import { RequestContextMiddleware } from './request-context.middleware';
 import { UserModule } from './user/user.module';
 import { CacheModule } from '@nestjs/cache-manager';
+import { CacheService } from './common/services/cache.service';
 
 @Module({
   imports: [
@@ -54,6 +55,7 @@ import { CacheModule } from '@nestjs/cache-manager';
       useClass: JwtAuthGuard,
     },
     JwtStrategyService,
+    CacheService,
   ],
 })
 export class AppModule implements NestModule {

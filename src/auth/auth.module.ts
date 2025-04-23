@@ -9,11 +9,13 @@ import { JwtModule } from '@nestjs/jwt';
 import jwtConfig from 'src/configs/jwt.config';
 import { JwtStrategyService } from './services/jwt-strategy.service';
 import { TokenService } from './services/token.service';
+import { UserModule } from 'src/user/user.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ schema: UserSchema, name: User.name }]),
     JwtModule.registerAsync(jwtConfig.asProvider()),
+    UserModule,
   ],
   providers: [
     AuthService,

@@ -17,7 +17,7 @@ export class UserController {
   async getUserProfile() {
     const userPayload = this.contextService.get('user');
     if (!userPayload) throw new BadRequestException('No user id found');
-    const user = await this.userService.getProfileById(userPayload?.usr);
+    const user = await this.userService.getUserById(userPayload?.usr);
     return plainToInstance(UserDto, user, { excludeExtraneousValues: true });
   }
 }

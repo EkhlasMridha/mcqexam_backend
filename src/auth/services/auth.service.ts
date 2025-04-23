@@ -10,29 +10,22 @@ import { UserDto } from 'src/user/dtos/userDto';
 import { User } from 'src/user/schemas/user';
 import { SigninDto } from '../dtos/signin-dto';
 import { TokenService } from './token.service';
+import { UserService } from 'src/user/services/user.service';
+import { CacheService } from 'src/common/services/cache.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectModel(User.name) private readonly userModel: Model<User>,
+    private readonly userService: UserService,
     private readonly hashingProvider: HashingProvider,
     private tokenService: TokenService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private cashService: CacheService,
   ) {}
 
-  async findByEmail(email: string) {
-    const userData = await this.userModel.findOne<User>({ email: email });
-    return userData;
-  }
-
   async signInUser(signInDto: SigninDto) {
-    const user = await this.findByEmail(signInDto.email);
+    const user = await this.userService.getUserByEmail(signInDto.email);
     if (!user) {
       throw new BadRequestException('Invalid email or password');
-    }
-    if (!!user) {
-      await this.cacheManager.set(user.email, user);
-      await this.cacheManager.set(user.id, user);
     }
 
     const isOk = await this.hashingProvider.comparePassword(
@@ -58,12 +51,32 @@ export class AuthService {
       userDto.password,
     );
 
-    const user = new this.userModel({
-      ...userDto,
-      password: hashedPassword,
-      permissionLevel: UserPermission.ADMIN,
+    return await this.userService.createUser({
+      userData: userDto,
+      hashedPassword: hashedPassword,
+      permission: UserPermission.ADMIN,
     });
+  }
 
-    return await user.save();
+  async rotateAccessTokenByRefreshToken(refreshToken: string) {
+    if (!refreshToken) return null;
+
+    const tokenPayload =
+      await this.cashService.getData<AccessTokenPayload>(refreshToken);
+    if (!tokenPayload) return null;
+
+    const userData = await this.userService.getUserById(tokenPayload.usr);
+    if (!userData) return null;
+
+    const payload: AccessTokenPayload = {
+      usr: userData.id,
+      email: userData.email,
+      aut: userData.permissionLevel,
+    };
+    const accessToken = await this.tokenService.generateAccessToken(payload);
+    const newRefreshToken =
+      await this.tokenService.generateRefreshToken(payload);
+
+    return { access_token: accessToken, refresh_token: newRefreshToken };
   }
 }
