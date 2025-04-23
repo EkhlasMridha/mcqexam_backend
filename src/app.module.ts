@@ -5,14 +5,14 @@ import { MongooseModule } from '@nestjs/mongoose';
 import dbConfig from 'src/configs/db.config';
 import jwtConfig from 'src/configs/jwt.config';
 import { AuthModule } from './auth/auth.module';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
-import { ResponseInterceptor } from './common/interceptors/response.interceptor';
-import { UserModule } from './user/user.module';
 import { JwtStrategyService } from './auth/services/jwt-strategy.service';
+import { HttpExceptionFilter } from './common/filters/http-exception.filter';
 import { JwtAuthGuard } from './common/guards/jwt-auth.guard';
-import { RequestContextService } from './request-context.service';
-import { RequestContextMiddleware } from './request-context.middleware';
+import { ResponseInterceptor } from './common/interceptors/response.interceptor';
 import { SharedModule } from './common/shared.module';
+import { RequestContextMiddleware } from './request-context.middleware';
+import { UserModule } from './user/user.module';
+import { CacheModule } from '@nestjs/cache-manager';
 
 @Module({
   imports: [
@@ -32,6 +32,9 @@ import { SharedModule } from './common/shared.module';
           maxPoolSize: 50,
         };
       },
+    }),
+    CacheModule.register({
+      isGlobal: true,
     }),
     UserModule,
     AuthModule,
