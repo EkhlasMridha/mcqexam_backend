@@ -15,6 +15,12 @@ export class TokenService {
   ) {}
 
   async generateAccessToken(payload: AccessTokenPayload) {
+    this.cacheManager.set(
+      payload.iv,
+      payload.iv,
+      this.configService.get('token.accessTokenTtl'),
+    );
+
     return await this.jwtService.signAsync(payload, {
       expiresIn: this.configService.get('token.accessTokenTtl'),
       audience: this.configService.get('token.audience'),
