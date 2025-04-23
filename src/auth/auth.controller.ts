@@ -13,6 +13,9 @@ import { plainToInstance } from 'class-transformer';
 import { ApiBody } from '@nestjs/swagger';
 import { Public } from 'src/common/decorators/public.decorator';
 import { RefreshTokenDto } from './dtos/refresh-token-dto';
+import { AuthToken } from './dtos/auth-token';
+import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { AccessTokenPayload } from 'src/common/types';
 
 @Controller('auth')
 export class AuthController {
@@ -23,7 +26,11 @@ export class AuthController {
   @ApiBody({ type: SigninDto })
   @Public()
   async signInUser(@Body() singinDto: SigninDto) {
-    return await this.authService.signInUser(singinDto);
+    const result = await this.authService.signInUser(singinDto);
+
+    return plainToInstance(AuthToken, result, {
+      excludeExtraneousValues: true,
+    });
   }
 
   @Post('admin/signup')
@@ -47,6 +54,20 @@ export class AuthController {
     );
     if (!result) throw new UnauthorizedException('refresh_error');
 
-    return result;
+    return plainToInstance(AuthToken, result, {
+      excludeExtraneousValues: true,
+    });
+  }
+
+  @Post('signout')
+  @ApiBody({ type: RefreshTokenDto })
+  @HttpCode(HttpStatus.OK)
+  async signoutUser(
+    @CurrentUser() userInfo: AccessTokenPayload,
+    @Body() refreshToken: RefreshTokenDto,
+  ) {
+    await this.authService.signOutUser(userInfo, refreshToken.refresh_token);
+
+    return true;
   }
 }
