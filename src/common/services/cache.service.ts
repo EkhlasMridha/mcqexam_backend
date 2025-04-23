@@ -69,4 +69,8 @@ export class CacheService {
   async setData<T = any>(key: string, data: T, ttl?: number) {
     return await this.cacheManager.set<T>(key, data, ttl);
   }
+
+  async deleteData(key: string) {
+    return await this.cacheManager.del(key);
+  }
 }

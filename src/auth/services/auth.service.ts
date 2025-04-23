@@ -12,6 +12,8 @@ import { SigninDto } from '../dtos/signin-dto';
 import { TokenService } from './token.service';
 import { UserService } from 'src/user/services/user.service';
 import { CacheService } from 'src/common/services/cache.service';
+import { AuthToken } from '../dtos/auth-token';
+import { uuidv7 } from 'uuidv7';
 
 @Injectable()
 export class AuthService {
@@ -35,15 +37,20 @@ export class AuthService {
     if (!isOk) {
       throw new BadRequestException('Invalid email or password');
     }
+
+    const tokenId = uuidv7();
     const payload: AccessTokenPayload = {
       usr: user.id,
       email: user.email,
       aut: user.permissionLevel,
+      iv: tokenId,
     };
+
+    this.cashService.setData(tokenId, tokenId);
     const accessToken = await this.tokenService.generateAccessToken(payload);
     const refreshToken = await this.tokenService.generateRefreshToken(payload);
 
-    return { access_token: accessToken, refresh_token: refreshToken };
+    return new AuthToken(accessToken, refreshToken);
   }
 
   async signUpAdmin(userDto: UserDto) {
@@ -65,6 +72,9 @@ export class AuthService {
       await this.cashService.getData<AccessTokenPayload>(refreshToken);
     if (!tokenPayload) return null;
 
+    const tokenId = await this.cashService.getData<string>(tokenPayload.iv);
+    if (!tokenId) return null;
+
     const userData = await this.userService.getUserById(tokenPayload.usr);
     if (!userData) return null;
 
@@ -72,11 +82,18 @@ export class AuthService {
       usr: userData.id,
       email: userData.email,
       aut: userData.permissionLevel,
+      iv: tokenId,
     };
     const accessToken = await this.tokenService.generateAccessToken(payload);
     const newRefreshToken =
       await this.tokenService.generateRefreshToken(payload);
 
-    return { access_token: accessToken, refresh_token: newRefreshToken };
+    const token = new AuthToken(accessToken, newRefreshToken);
+    return token;
+  }
+
+  async signOutUser(token: AccessTokenPayload, refreshToken: string) {
+    await this.cashService.deleteData(token.iv);
+    await this.cashService.deleteData(refreshToken);
   }
 }
