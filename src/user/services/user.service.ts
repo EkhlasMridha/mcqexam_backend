@@ -5,11 +5,17 @@ import { CacheService } from 'src/common/services/cache.service';
 import { User } from 'src/user/schemas/user';
 import { UserDto } from '../dtos/userDto';
 import { UserPermission } from 'src/constants/permissions.constant';
+import { UserWithProviderdto } from '../dtos/user-with-providerdto';
 
 interface CreateUserParams {
   userData: UserDto;
   hashedPassword?: string;
   permission?: UserPermission;
+}
+
+interface CreateUserWithProviderParams
+  extends Omit<CreateUserParams, 'hashedPassword' | 'userData'> {
+  userData: UserWithProviderdto;
 }
 
 @Injectable()
@@ -60,5 +66,46 @@ export class UserService {
     });
 
     return result;
+  }
+
+  async createUserWithProvider({
+    userData,
+    permission = UserPermission.USER,
+  }: CreateUserWithProviderParams) {
+    const newUser = new this.userModel({
+      ...userData,
+      permissionLevel: permission,
+    });
+
+    const result = await this.cacheService.writeDataWithStore({
+      cacheKey: ['email', 'id'],
+      query: () => newUser.save(),
+    });
+
+    return result;
+  }
+
+  async addProviderOrCreateUser({
+    userData,
+    permission,
+  }: CreateUserWithProviderParams) {
+    return await this.userModel
+      .findOneAndUpdate(
+        {
+          email: userData.email,
+        },
+        {
+          $addToSet: { authProviderIds: userData.authProviderId },
+          $setOnInsert: { ...userData, permissionLevel: permission },
+        },
+        { upsert: true },
+      )
+      .exec();
+  }
+
+  async findUserByAuthProviderId(providerId: string) {
+    return await this.userModel
+      .findOne<User>({ authProviderIds: providerId })
+      .exec();
   }
 }

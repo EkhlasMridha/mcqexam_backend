@@ -1,19 +1,14 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Cache } from 'cache-manager';
-import { Model } from 'mongoose';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { HashingProvider } from 'src/auth/services/hashing.provider';
+import { CacheService } from 'src/common/services/cache.service';
 import { AccessTokenPayload } from 'src/common/types';
 import { UserPermission } from 'src/constants/permissions.constant';
 import { UserDto } from 'src/user/dtos/userDto';
-import { User } from 'src/user/schemas/user';
+import { UserService } from 'src/user/services/user.service';
+import { uuidv7 } from 'uuidv7';
+import { AuthToken } from '../dtos/auth-token';
 import { SigninDto } from '../dtos/signin-dto';
 import { TokenService } from './token.service';
-import { UserService } from 'src/user/services/user.service';
-import { CacheService } from 'src/common/services/cache.service';
-import { AuthToken } from '../dtos/auth-token';
-import { uuidv7 } from 'uuidv7';
 
 @Injectable()
 export class AuthService {
@@ -26,7 +21,7 @@ export class AuthService {
 
   async signInUser(signInDto: SigninDto) {
     const user = await this.userService.getUserByEmail(signInDto.email);
-    if (!user) {
+    if (!user || !user.password) {
       throw new BadRequestException('Invalid email or password');
     }
 

@@ -20,9 +20,16 @@ export class User extends Document {
   email: string;
 
   @Prop({
-    isRequired: true,
+    isRequired: false,
+    maxlength: 100,
   })
-  password: string;
+  password?: string;
+
+  @Prop({
+    isRequired: false,
+    type: String,
+  })
+  authProviderIds?: string[];
 
   @Prop({
     isRequired: true,

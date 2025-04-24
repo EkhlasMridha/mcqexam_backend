@@ -3,6 +3,7 @@ import { Expose } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
+  IsOptional,
   IsString,
   Matches,
   MaxLength,
@@ -32,6 +33,7 @@ export class UserDto {
     message: 'Weak password',
   })
   @ApiProperty({ default: 'abcd1234#' })
+  @MaxLength(100)
   password: string;
 
   @IsEmail()

@@ -1,15 +1,16 @@
 import { Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { MongooseModule } from '@nestjs/mongoose';
-import { User, UserSchema } from 'src/user/schemas/user';
-import { AuthService } from './services/auth.service';
-import { HashingProvider } from './services/hashing.provider';
-import { BcryptProvider } from './services/bcrypt.provider';
 import { JwtModule } from '@nestjs/jwt';
+import { MongooseModule } from '@nestjs/mongoose';
 import jwtConfig from 'src/configs/jwt.config';
-import { JwtStrategyService } from './services/jwt-strategy.service';
-import { TokenService } from './services/token.service';
+import { User, UserSchema } from 'src/user/schemas/user';
 import { UserModule } from 'src/user/user.module';
+import { AuthController } from './auth.controller';
+import { AuthService } from './services/auth.service';
+import { BcryptProvider } from './services/bcrypt.provider';
+import { HashingProvider } from './services/hashing.provider';
+import { JwtStrategyService } from './services/jwt-strategy.service';
+import { OAuthService } from './services/o-auth.service';
+import { TokenService } from './services/token.service';
 
 @Module({
   imports: [
@@ -22,6 +23,7 @@ import { UserModule } from 'src/user/user.module';
     { provide: HashingProvider, useClass: BcryptProvider },
     JwtStrategyService,
     TokenService,
+    OAuthService,
   ],
   controllers: [AuthController],
   exports: [JwtModule, JwtStrategyService],

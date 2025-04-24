@@ -4,3 +4,5 @@ export interface AccessTokenPayload {
   aut: number;
   iv: string;
 }
+
+export type AuthProviderTypes = 'google';
