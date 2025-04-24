@@ -16,10 +16,15 @@ import { RefreshTokenDto } from './dtos/refresh-token-dto';
 import { AuthToken } from './dtos/auth-token';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
 import { AccessTokenPayload } from 'src/common/types';
+import { OAuthTokenDto } from './dtos/o-auth-token-dto';
+import { OAuthService } from './services/o-auth.service';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    private oAuthService: OAuthService,
+  ) {}
 
   @Post('signin')
   @HttpCode(HttpStatus.OK)
@@ -69,5 +74,19 @@ export class AuthController {
     await this.authService.signOutUser(userInfo, refreshToken.refresh_token);
 
     return true;
+  }
+
+  @Post('oauth')
+  @ApiBody({ type: OAuthTokenDto })
+  @HttpCode(HttpStatus.OK)
+  @Public()
+  async verifyOAuthTokenAndSignIn(@Body() oauthToken: OAuthTokenDto) {
+    const result = await this.oAuthService.googleAuthenticate(
+      oauthToken.authToken,
+    );
+
+    return plainToInstance(AuthToken, result, {
+      excludeExtraneousValues: true,
+    });
   }
 }
