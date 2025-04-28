@@ -6,17 +6,17 @@ import {
   Post,
   UnauthorizedException,
 } from '@nestjs/common';
-import { SigninDto } from './dtos/signin-dto';
-import { UserDto } from 'src/user/dtos/userDto';
-import { AuthService } from './services/auth.service';
+import { ApiBearerAuth, ApiBody } from '@nestjs/swagger';
 import { plainToInstance } from 'class-transformer';
-import { ApiBody } from '@nestjs/swagger';
-import { Public } from 'src/common/decorators/public.decorator';
-import { RefreshTokenDto } from './dtos/refresh-token-dto';
-import { AuthToken } from './dtos/auth-token';
 import { CurrentUser } from 'src/common/decorators/current-user.decorator';
+import { Public } from 'src/common/decorators/public.decorator';
 import { AccessTokenPayload } from 'src/common/types';
+import { UserDto } from 'src/user/dtos/userDto';
+import { AuthToken } from './dtos/auth-token';
 import { OAuthTokenDto } from './dtos/o-auth-token-dto';
+import { RefreshTokenDto } from './dtos/refresh-token-dto';
+import { SigninDto } from './dtos/signin-dto';
+import { AuthService } from './services/auth.service';
 import { OAuthService } from './services/o-auth.service';
 
 @Controller('auth')
@@ -53,9 +53,10 @@ export class AuthController {
   @ApiBody({ type: RefreshTokenDto })
   @HttpCode(HttpStatus.OK)
   @Public()
-  async refreshToken(@Body() refreshToken: RefreshTokenDto) {
+  async rotateTokenByRefreshToken(@Body() refreshToken: RefreshTokenDto) {
+    console.log('PL: ', refreshToken);
     const result = await this.authService.rotateAccessTokenByRefreshToken(
-      refreshToken.refresh_token,
+      refreshToken.refreshToken,
     );
     if (!result) throw new UnauthorizedException('refresh_error');
 
@@ -67,11 +68,12 @@ export class AuthController {
   @Post('signout')
   @ApiBody({ type: RefreshTokenDto })
   @HttpCode(HttpStatus.OK)
+  @ApiBearerAuth('access-token')
   async signoutUser(
     @CurrentUser() userInfo: AccessTokenPayload,
     @Body() refreshToken: RefreshTokenDto,
   ) {
-    await this.authService.signOutUser(userInfo, refreshToken.refresh_token);
+    await this.authService.signOutUser(userInfo, refreshToken.refreshToken);
 
     return true;
   }

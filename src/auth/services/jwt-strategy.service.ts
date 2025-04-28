@@ -20,6 +20,7 @@ export class JwtStrategyService extends PassportStrategy(Strategy) {
 
   async validate(payload: AccessTokenPayload) {
     const storedTokenId = await this.cacheService.getData<string>(payload.iv);
+    console.log('TK: ', storedTokenId);
     if (!storedTokenId) return null;
 
     return payload;

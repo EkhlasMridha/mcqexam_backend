@@ -5,17 +5,18 @@ import { AccessTokenPayload } from 'src/common/types';
 import { randomBytes } from 'crypto';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
+import { CacheService } from 'src/common/services/cache.service';
 
 @Injectable()
 export class TokenService {
   constructor(
     private jwtService: JwtService,
     private configService: ConfigService,
-    @Inject(CACHE_MANAGER) private cacheManager: Cache,
+    private cacheService: CacheService,
   ) {}
 
   async generateAccessToken(payload: AccessTokenPayload) {
-    this.cacheManager.set(
+    await this.cacheService.setData(
       payload.iv,
       payload.iv,
       this.configService.get('token.accessTokenTtl'),
@@ -33,7 +34,7 @@ export class TokenService {
     const timestamp = Date.now();
     const token = `${randomPart}.${timestamp}`;
 
-    await this.cacheManager.set(
+    await this.cacheService.setData(
       token,
       payload,
       this.configService.get('token.refreshTokenTtl'),

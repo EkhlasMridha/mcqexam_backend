@@ -66,6 +66,7 @@ export class AuthService {
       await this.cashService.getData<AccessTokenPayload>(refreshToken);
     if (!tokenPayload) return null;
 
+    await this.cashService.deleteData(refreshToken);
     const tokenId = await this.cashService.getData<string>(tokenPayload.iv);
     if (!tokenId) return null;
 

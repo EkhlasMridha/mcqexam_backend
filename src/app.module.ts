@@ -1,3 +1,4 @@
+import { CacheModule } from '@nestjs/cache-manager';
 import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { APP_FILTER, APP_GUARD, APP_INTERCEPTOR } from '@nestjs/core';
@@ -12,8 +13,6 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { SharedModule } from './common/shared.module';
 import { RequestContextMiddleware } from './request-context.middleware';
 import { UserModule } from './user/user.module';
-import { CacheModule } from '@nestjs/cache-manager';
-import { CacheService } from './common/services/cache.service';
 
 @Module({
   imports: [
@@ -36,6 +35,7 @@ import { CacheService } from './common/services/cache.service';
     }),
     CacheModule.register({
       isGlobal: true,
+      cacheId: 'mcq_app',
     }),
     UserModule,
     AuthModule,
@@ -55,7 +55,6 @@ import { CacheService } from './common/services/cache.service';
       useClass: JwtAuthGuard,
     },
     JwtStrategyService,
-    CacheService,
   ],
 })
 export class AppModule implements NestModule {
