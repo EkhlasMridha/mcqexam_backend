@@ -36,7 +36,7 @@ export class CacheService {
     const getCacheKey =
       typeof cacheKey === 'object' ? cacheKey?.getKey : cacheKey;
     result = await this.cacheManager.get<T>(getCacheKey.toString());
-    if (!!result) return result;
+    if (result) return result;
 
     result = await query();
     if (!result) return null;
