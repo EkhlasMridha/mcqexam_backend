@@ -13,6 +13,7 @@ import { ResponseInterceptor } from './common/interceptors/response.interceptor'
 import { SharedModule } from './common/shared.module';
 import { RequestContextMiddleware } from './request-context.middleware';
 import { UserModule } from './user/user.module';
+import { AuthorizationGuard } from './common/guards/authorization.guard';
 
 @Module({
   imports: [
