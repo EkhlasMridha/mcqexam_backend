@@ -1,5 +1,6 @@
 import { Prop } from '@nestjs/mongoose';
 import { Document, Schema } from 'mongoose';
+import { Exam } from './exam';
 
 export class Question extends Document {
   @Prop({
@@ -23,6 +24,7 @@ export class Question extends Document {
   @Prop({
     isRequired: true,
     type: Schema.Types.ObjectId,
+    ref: Exam.name,
   })
   exam_id: Schema.Types.ObjectId;
 
