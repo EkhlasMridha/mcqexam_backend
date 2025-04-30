@@ -3,7 +3,6 @@ import { Expose } from 'class-transformer';
 import {
   IsEmail,
   IsNotEmpty,
-  IsOptional,
   IsString,
   Matches,
   MaxLength,

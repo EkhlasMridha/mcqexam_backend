@@ -1,9 +1,9 @@
-import { CanActivate, ExecutionContext, Injectable } from '@nestjs/common';
-import { Observable } from 'rxjs';
-import { AuthGuard } from '@nestjs/passport';
+import { ExecutionContext, Injectable } from '@nestjs/common';
 import { Reflector } from '@nestjs/core';
-import { RequestContextService } from 'src/request-context.service';
+import { AuthGuard } from '@nestjs/passport';
+import { Observable } from 'rxjs';
 import { PUBLIC_META } from 'src/constants/permissions.constant';
+import { RequestContextService } from 'src/request-context.service';
 
 @Injectable()
 export class JwtAuthGuard extends AuthGuard('jwt') {
