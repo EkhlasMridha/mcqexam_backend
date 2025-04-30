@@ -6,3 +6,4 @@ export interface AccessTokenPayload {
 }
 
 export type AuthProviderTypes = 'google';
+export type ExamType = 'sequantial' | 'rounded';
