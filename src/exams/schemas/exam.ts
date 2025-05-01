@@ -1,7 +1,8 @@
-import { Prop } from '@nestjs/mongoose';
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { ExamType } from 'src/common/types';
 import { Document } from 'mongoose';
 
+@Schema()
 export class Exam extends Document {
   @Prop({
     isRequired: true,
@@ -22,3 +23,5 @@ export class Exam extends Document {
   })
   examType: ExamType;
 }
+
+export const ExamSchema = SchemaFactory.createForClass(Exam);

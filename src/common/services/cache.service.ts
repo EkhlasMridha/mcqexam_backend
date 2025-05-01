@@ -12,6 +12,11 @@ interface WriteDataWithStoreParams<T extends any> {
   query: () => Promise<T>;
   ttl?: number;
 }
+interface ReadWriteBulkDataWithStore<T extends any> {
+  cacheKey: any;
+  query: () => Promise<T>;
+  ttlInMs?: number;
+}
 
 @Injectable()
 export class CacheService {
@@ -23,7 +28,9 @@ export class CacheService {
     ttl?: number,
   ) {
     await Promise.all(
-      cachekey.map((key) => this.cacheManager.set(key.toString(), result, ttl)),
+      cachekey.map((key) =>
+        this.cacheManager.set(`${result[key]}`, result, ttl),
+      ),
     );
   }
 
@@ -58,6 +65,19 @@ export class CacheService {
     const result = await query();
 
     await this.setDataToCache(cacheKey, result, ttl);
+
+    return result;
+  }
+
+  async writeBulkDataWithStore<T extends any[]>({
+    cacheKey,
+    query,
+    ttlInMs,
+  }: ReadWriteBulkDataWithStore<T>) {
+    const result = await query();
+    if (cacheKey) {
+      await this.cacheManager.set(cacheKey, result, ttlInMs);
+    }
 
     return result;
   }
