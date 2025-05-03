@@ -1,17 +1,16 @@
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { BadRequestException, Inject, Injectable } from '@nestjs/common';
-import { InjectModel } from '@nestjs/mongoose';
-import { Cache } from 'cache-manager';
-import { Model } from 'mongoose';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { HashingProvider } from 'src/auth/services/hashing.provider';
+import { CacheService } from 'src/common/services/cache.service';
 import { AccessTokenPayload } from 'src/common/types';
 import { UserPermission } from 'src/constants/permissions.constant';
 import { UserDto } from 'src/user/dtos/userDto';
-import { User } from 'src/user/schemas/user';
+import { UserService } from 'src/user/services/user.service';
+import { uuidv7 } from 'uuidv7';
+import { AuthToken } from '../dtos/auth-token';
 import { SigninDto } from '../dtos/signin-dto';
 import { TokenService } from './token.service';
-import { UserService } from 'src/user/services/user.service';
-import { CacheService } from 'src/common/services/cache.service';
+import { Schema } from 'mongoose';
+import { OrganizationService } from 'src/organization/services/organization.service';
 
 @Injectable()
 export class AuthService {
@@ -20,11 +19,12 @@ export class AuthService {
     private readonly hashingProvider: HashingProvider,
     private tokenService: TokenService,
     private cashService: CacheService,
+    private organizationService: OrganizationService,
   ) {}
 
   async signInUser(signInDto: SigninDto) {
     const user = await this.userService.getUserByEmail(signInDto.email);
-    if (!user) {
+    if (!user || !user.password) {
       throw new BadRequestException('Invalid email or password');
     }
 
@@ -35,15 +35,20 @@ export class AuthService {
     if (!isOk) {
       throw new BadRequestException('Invalid email or password');
     }
+
+    const tokenId = uuidv7();
     const payload: AccessTokenPayload = {
       usr: user.id,
       email: user.email,
       aut: user.permissionLevel,
+      iv: tokenId,
+      oid: user.organization_id?.toString() || null,
     };
+
     const accessToken = await this.tokenService.generateAccessToken(payload);
     const refreshToken = await this.tokenService.generateRefreshToken(payload);
 
-    return { access_token: accessToken, refresh_token: refreshToken };
+    return new AuthToken(accessToken, refreshToken);
   }
 
   async signUpAdmin(userDto: UserDto) {
@@ -51,10 +56,14 @@ export class AuthService {
       userDto.password,
     );
 
+    const org = await this.organizationService.createOrganization({
+      organization_name: `${userDto.firstName} ${userDto.lastName}`,
+    });
     return await this.userService.createUser({
       userData: userDto,
       hashedPassword: hashedPassword,
       permission: UserPermission.ADMIN,
+      orgId: org.id,
     });
   }
 
@@ -65,6 +74,10 @@ export class AuthService {
       await this.cashService.getData<AccessTokenPayload>(refreshToken);
     if (!tokenPayload) return null;
 
+    await this.cashService.deleteData(refreshToken);
+    const tokenId = await this.cashService.getData<string>(tokenPayload.iv);
+    if (!tokenId) return null;
+
     const userData = await this.userService.getUserById(tokenPayload.usr);
     if (!userData) return null;
 
@@ -72,11 +85,18 @@ export class AuthService {
       usr: userData.id,
       email: userData.email,
       aut: userData.permissionLevel,
+      iv: tokenId,
     };
     const accessToken = await this.tokenService.generateAccessToken(payload);
     const newRefreshToken =
       await this.tokenService.generateRefreshToken(payload);
 
-    return { access_token: accessToken, refresh_token: newRefreshToken };
+    const token = new AuthToken(accessToken, newRefreshToken);
+    return token;
+  }
+
+  async signOutUser(token: AccessTokenPayload, refreshToken: string) {
+    await this.cashService.deleteData(token.iv);
+    await this.cashService.deleteData(refreshToken);
   }
 }

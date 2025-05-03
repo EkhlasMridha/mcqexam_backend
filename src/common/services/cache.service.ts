@@ -12,6 +12,11 @@ interface WriteDataWithStoreParams<T extends any> {
   query: () => Promise<T>;
   ttl?: number;
 }
+interface ReadWriteBulkDataWithStore<T extends any> {
+  cacheKey: any;
+  query: () => Promise<T>;
+  ttlInMs?: number;
+}
 
 @Injectable()
 export class CacheService {
@@ -23,7 +28,9 @@ export class CacheService {
     ttl?: number,
   ) {
     await Promise.all(
-      cachekey.map((key) => this.cacheManager.set(key.toString(), result, ttl)),
+      cachekey.map((key) =>
+        this.cacheManager.set(`${result[key]}`, result, ttl),
+      ),
     );
   }
 
@@ -36,7 +43,7 @@ export class CacheService {
     const getCacheKey =
       typeof cacheKey === 'object' ? cacheKey?.getKey : cacheKey;
     result = await this.cacheManager.get<T>(getCacheKey.toString());
-    if (!!result) return result;
+    if (result) return result;
 
     result = await query();
     if (!result) return null;
@@ -62,11 +69,47 @@ export class CacheService {
     return result;
   }
 
+  async writeBulkDataWithStore<T extends any[]>({
+    cacheKey,
+    query,
+    ttlInMs,
+  }: ReadWriteBulkDataWithStore<T>) {
+    const result = await query();
+    if (cacheKey) {
+      await this.cacheManager.set(cacheKey, result, ttlInMs);
+    }
+
+    return result;
+  }
+
+  async getBulkDataWithStore<T extends any>({
+    cacheKey,
+    query,
+    ttlInMs,
+  }: ReadWriteBulkDataWithStore<T>) {
+    let result: Awaited<T> | null = null;
+    if (!!cacheKey) {
+      result = await this.cacheManager.get<T>(cacheKey);
+    }
+    if (!!result) return result;
+
+    result = await query();
+    if (!!result) {
+      this.cacheManager.set(cacheKey, result, ttlInMs);
+    }
+
+    return result;
+  }
+
   async getData<T = any>(key: string) {
     return await this.cacheManager.get<T>(key);
   }
 
   async setData<T = any>(key: string, data: T, ttl?: number) {
     return await this.cacheManager.set<T>(key, data, ttl);
+  }
+
+  async deleteData(key: string) {
+    return await this.cacheManager.del(key);
   }
 }

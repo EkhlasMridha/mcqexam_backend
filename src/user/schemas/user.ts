@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document } from 'mongoose';
+import { Document, Schema as SchemaType } from 'mongoose';
 
 @Schema()
 export class User extends Document {
@@ -20,15 +20,28 @@ export class User extends Document {
   email: string;
 
   @Prop({
-    isRequired: true,
+    isRequired: false,
+    maxlength: 100,
   })
-  password: string;
+  password?: string;
+
+  @Prop({
+    isRequired: false,
+    type: String,
+  })
+  authProviderIds?: string[];
 
   @Prop({
     isRequired: true,
     type: Number,
   })
   permissionLevel: number;
+
+  @Prop({
+    isRequired: false,
+    type: SchemaType.Types.ObjectId,
+  })
+  organization_id?: SchemaType.Types.ObjectId;
 }
 
 export const UserSchema = SchemaFactory.createForClass(User);

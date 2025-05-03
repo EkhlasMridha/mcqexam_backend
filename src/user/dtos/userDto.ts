@@ -32,6 +32,7 @@ export class UserDto {
     message: 'Weak password',
   })
   @ApiProperty({ default: 'abcd1234#' })
+  @MaxLength(100)
   password: string;
 
   @IsEmail()

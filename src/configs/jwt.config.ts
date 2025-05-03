@@ -6,4 +6,6 @@ export default registerAs('token', () => ({
   audience: process.env.JWT_AUDIENCE,
   issuer: process.env.JWT_ISSUER,
   refreshTokenTtl: parseInt(process.env.REFRESH_TOKEN_TTL ?? '4320', 10),
+  googleClientId: process.env.GOOGLE_CLIENT_ID,
+  googleClientSecret: process.env.GOOGLE_CLIENT_SECRET,
 }));
