@@ -51,6 +51,15 @@ export class QuestionsService {
     return result;
   }
 
+  async getQuestionByExamId(examId: string) {
+    const result = await this.cacheService.getBulkDataWithStore({
+      query: () => this.questionModel.find({ exam_id: examId }),
+      cacheKey: examId,
+    });
+
+    return result;
+  }
+
   async deleteQuestionById(questionId: string) {
     await this.questionModel.deleteOne({ id: questionId });
     await this.cacheService.deleteData(questionId);

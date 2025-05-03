@@ -11,12 +11,14 @@ import { HashingProvider } from './services/hashing.provider';
 import { JwtStrategyService } from './services/jwt-strategy.service';
 import { OAuthService } from './services/o-auth.service';
 import { TokenService } from './services/token.service';
+import { OrganizationModule } from 'src/organization/organization.module';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ schema: UserSchema, name: User.name }]),
     JwtModule.registerAsync(jwtConfig.asProvider()),
     UserModule,
+    OrganizationModule,
   ],
   providers: [
     AuthService,

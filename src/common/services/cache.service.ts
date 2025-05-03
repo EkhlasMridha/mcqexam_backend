@@ -82,6 +82,25 @@ export class CacheService {
     return result;
   }
 
+  async getBulkDataWithStore<T extends any>({
+    cacheKey,
+    query,
+    ttlInMs,
+  }: ReadWriteBulkDataWithStore<T>) {
+    let result: Awaited<T> | null = null;
+    if (!!cacheKey) {
+      result = await this.cacheManager.get<T>(cacheKey);
+    }
+    if (!!result) return result;
+
+    result = await query();
+    if (!!result) {
+      this.cacheManager.set(cacheKey, result, ttlInMs);
+    }
+
+    return result;
+  }
+
   async getData<T = any>(key: string) {
     return await this.cacheManager.get<T>(key);
   }

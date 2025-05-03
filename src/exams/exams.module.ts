@@ -5,6 +5,7 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { Exam, ExamSchema } from './schemas/exam';
 import { Question, QuestionSchema } from './schemas/question';
 import { ExamController } from './controllers/exam.controller';
+import { QuestionController } from './controllers/question.controller';
 
 @Module({
   imports: [
@@ -20,6 +21,6 @@ import { ExamController } from './controllers/exam.controller';
     ]),
   ],
   providers: [ExamService, QuestionsService],
-  controllers: [ExamController],
+  controllers: [ExamController, QuestionController],
 })
 export class ExamsModule {}
