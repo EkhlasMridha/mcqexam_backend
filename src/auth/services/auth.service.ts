@@ -9,6 +9,7 @@ import { uuidv7 } from 'uuidv7';
 import { AuthToken } from '../dtos/auth-token';
 import { SigninDto } from '../dtos/signin-dto';
 import { TokenService } from './token.service';
+import { Schema } from 'mongoose';
 
 @Injectable()
 export class AuthService {
@@ -39,6 +40,7 @@ export class AuthService {
       email: user.email,
       aut: user.permissionLevel,
       iv: tokenId,
+      oid: user.organization_id?.toString() || null,
     };
 
     const accessToken = await this.tokenService.generateAccessToken(payload);

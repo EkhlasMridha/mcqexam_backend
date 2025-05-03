@@ -1,9 +1,10 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Schema as SchemaType } from 'mongoose';
+import { Schema as SchemaType } from 'mongoose';
+import { AppDomain } from 'src/common/app-domain';
 import { Exam } from './exam';
 
 @Schema()
-export class Question extends Document {
+export class Question extends AppDomain {
   @Prop({
     isRequired: true,
     type: String,

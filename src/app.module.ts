@@ -14,6 +14,7 @@ import { SharedModule } from './common/shared.module';
 import { RequestContextMiddleware } from './request-context.middleware';
 import { UserModule } from './user/user.module';
 import { ExamsModule } from './exams/exams.module';
+import { OrganizationModule } from './organization/organization.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { ExamsModule } from './exams/exams.module';
     AuthModule,
     SharedModule,
     ExamsModule,
+    OrganizationModule,
   ],
   providers: [
     {

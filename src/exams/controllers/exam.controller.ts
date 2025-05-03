@@ -23,5 +23,6 @@ export class ExamController {
   @ApiBearerAuth('access-token')
   async getExamById(@Param(':id') id: string) {
     const result = await this.examService.getExamById(id);
+    return result;
   }
 }
