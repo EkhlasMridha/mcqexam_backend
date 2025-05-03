@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Schema } from 'mongoose';
 import { CacheService } from 'src/common/services/cache.service';
 import { User } from 'src/user/schemas/user';
 import { UserDto } from '../dtos/userDto';
@@ -11,6 +11,7 @@ interface CreateUserParams {
   userData: UserDto;
   hashedPassword?: string;
   permission?: UserPermission;
+  orgId?: Schema.Types.ObjectId;
 }
 
 interface CreateUserWithProviderParams
@@ -52,12 +53,14 @@ export class UserService {
     permission = UserPermission.USER,
     userData,
     hashedPassword,
+    orgId,
   }: CreateUserParams) {
     const pass = hashedPassword || userData?.password;
     const newUser = new this.userModel({
       ...userData,
       password: pass,
       permissionLevel: permission,
+      organization_id: orgId,
     });
 
     const result = await this.cacheService.writeDataWithStore({

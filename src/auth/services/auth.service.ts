@@ -10,6 +10,7 @@ import { AuthToken } from '../dtos/auth-token';
 import { SigninDto } from '../dtos/signin-dto';
 import { TokenService } from './token.service';
 import { Schema } from 'mongoose';
+import { OrganizationService } from 'src/organization/services/organization.service';
 
 @Injectable()
 export class AuthService {
@@ -18,6 +19,7 @@ export class AuthService {
     private readonly hashingProvider: HashingProvider,
     private tokenService: TokenService,
     private cashService: CacheService,
+    private organizationService: OrganizationService,
   ) {}
 
   async signInUser(signInDto: SigninDto) {
@@ -54,10 +56,14 @@ export class AuthService {
       userDto.password,
     );
 
+    const org = await this.organizationService.createOrganization({
+      organization_name: `${userDto.firstName} ${userDto.lastName}`,
+    });
     return await this.userService.createUser({
       userData: userDto,
       hashedPassword: hashedPassword,
       permission: UserPermission.ADMIN,
+      orgId: org.id,
     });
   }
 
