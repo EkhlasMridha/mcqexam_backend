@@ -27,52 +27,62 @@ export class OAuthService implements OnModuleInit {
   onModuleInit() {
     const clientId = this.jwtConfiguration.googleClientId;
     const clientSecret = this.jwtConfiguration.googleClientSecret;
-
     this.oAuthClient = new OAuth2Client({
       clientId: clientId,
       clientSecret: clientSecret,
+      redirectUri: 'postmessage',
     });
   }
 
-  async googleAuthenticate(authToken: string) {
-    const loginTicket = await this.oAuthClient.verifyIdToken({
-      idToken: authToken,
-    });
+  async googleAuthenticate(authCode: string) {
+    try {
+      const { tokens } = await this.oAuthClient.getToken(authCode);
+      if (!tokens?.id_token) return null;
 
-    const {
-      email = '',
-      family_name = '',
-      given_name = '',
-      sub: googleId,
-    } = loginTicket.getPayload() || {};
-
-    if (!googleId || !email) throw new UnauthorizedException('invalid_token');
-
-    let user = await this.userService.findUserByAuthProviderId(googleId);
-
-    if (!user) {
-      user = await this.userService.addProviderOrCreateUser({
-        userData: {
-          email: email,
-          firstName: family_name,
-          lastName: given_name,
-          password: '',
-          authProviderId: googleId,
-        },
+      const loginTicket = await this.oAuthClient.verifyIdToken({
+        idToken: tokens?.id_token,
+        audience: this.jwtConfiguration.googleClientId,
       });
+
+      const {
+        email = '',
+        family_name = '',
+        given_name = '',
+        sub: googleId,
+      } = loginTicket.getPayload() || {};
+
+      if (!googleId || !email) throw new UnauthorizedException('invalid_token');
+
+      let user = await this.userService.findUserByAuthProviderId(googleId);
+
+      if (!user) {
+        user = await this.userService.addProviderOrCreateUser({
+          userData: {
+            email: email,
+            firstName: given_name,
+            lastName: family_name,
+            password: '',
+            authProviderId: googleId,
+          },
+        });
+      }
+
+      const tokenId = uuidv7();
+      const payload: AccessTokenPayload = {
+        usr: user?.id,
+        email: user?.email!,
+        aut: user?.permissionLevel!,
+        iv: tokenId,
+      };
+
+      const accessToken = await this.tokenService.generateAccessToken(payload);
+      const refreshToken =
+        await this.tokenService.generateRefreshToken(payload);
+
+      return new AuthToken(accessToken, refreshToken);
+    } catch (err) {
+      // console.log(err);
+      throw err;
     }
-
-    const tokenId = uuidv7();
-    const payload: AccessTokenPayload = {
-      usr: user?.id,
-      email: user?.email!,
-      aut: user?.permissionLevel!,
-      iv: tokenId,
-    };
-
-    const accessToken = await this.tokenService.generateAccessToken(payload);
-    const refreshToken = await this.tokenService.generateRefreshToken(payload);
-
-    return new AuthToken(accessToken, refreshToken);
   }
 }

@@ -78,7 +78,7 @@ export class AuthController {
     return true;
   }
 
-  @Post('oauth')
+  @Post('google-oauth')
   @ApiBody({ type: OAuthTokenDto })
   @HttpCode(HttpStatus.OK)
   @Public()
