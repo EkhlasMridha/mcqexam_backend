@@ -13,7 +13,7 @@ import { Public } from 'src/common/decorators/public.decorator';
 import { AccessTokenPayload } from 'src/common/types';
 import { UserDto } from 'src/user/dtos/userDto';
 import { AuthToken } from './dtos/auth-token';
-import { OAuthTokenDto } from './dtos/o-auth-token-dto';
+import { OAuthCodeDto } from './dtos/o-auth-token-dto';
 import { RefreshTokenDto } from './dtos/refresh-token-dto';
 import { SigninDto } from './dtos/signin-dto';
 import { AuthService } from './services/auth.service';
@@ -79,13 +79,11 @@ export class AuthController {
   }
 
   @Post('google-oauth')
-  @ApiBody({ type: OAuthTokenDto })
+  @ApiBody({ type: OAuthCodeDto })
   @HttpCode(HttpStatus.OK)
   @Public()
-  async verifyOAuthTokenAndSignIn(@Body() oauthToken: OAuthTokenDto) {
-    const result = await this.oAuthService.googleAuthenticate(
-      oauthToken.authToken,
-    );
+  async verifyOAuthTokenAndSignIn(@Body() oauthCode: OAuthCodeDto) {
+    const result = await this.oAuthService.googleAuthenticate(oauthCode.code);
 
     return plainToInstance(AuthToken, result, {
       excludeExtraneousValues: true,
