@@ -48,6 +48,16 @@ export class AuthController {
       excludeExtraneousValues: true,
     });
   }
+  @Post('/signup')
+  @ApiBody({ type: UserDto })
+  @Public()
+  async signUpUser(@Body() userDto: UserDto) {
+    const result = await this.authService.userSignup(userDto);
+
+    return plainToInstance(UserDto, result, {
+      excludeExtraneousValues: true,
+    });
+  }
 
   @Post('refresh')
   @ApiBody({ type: RefreshTokenDto })
