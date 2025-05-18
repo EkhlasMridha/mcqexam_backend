@@ -27,8 +27,8 @@ export class UserDto {
   lastName: string;
 
   @IsString()
-  @MinLength(8)
-  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[^A-Za-z\d]).{8,}$/, {
+  @MinLength(6)
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/, {
     message: 'Weak password',
   })
   @ApiProperty({ default: 'abcd1234#' })

@@ -48,7 +48,8 @@ export class AuthController {
       excludeExtraneousValues: true,
     });
   }
-  @Post('/signup')
+
+  @Post('signup')
   @ApiBody({ type: UserDto })
   @Public()
   async signUpUser(@Body() userDto: UserDto) {
