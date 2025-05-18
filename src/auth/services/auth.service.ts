@@ -67,6 +67,22 @@ export class AuthService {
     });
   }
 
+  async userSignup(userDto: UserDto) {
+    const hashedPassword = await this.hashingProvider.hashPassword(
+      userDto.password,
+    );
+
+    const org = await this.organizationService.createOrganization({
+      organization_name: `${userDto.firstName} ${userDto.lastName}`,
+    });
+    return await this.userService.createUser({
+      userData: userDto,
+      hashedPassword: hashedPassword,
+      permission: UserPermission.USER,
+      orgId: org.id,
+    });
+  }
+
   async rotateAccessTokenByRefreshToken(refreshToken: string) {
     if (!refreshToken) return null;
 
